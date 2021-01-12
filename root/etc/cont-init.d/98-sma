@@ -1,0 +1,55 @@
+#!/usr/bin/with-contenv bash
+
+cat <<EOF
+----------------
+>>> SMA Conversion/Tagging Automation Script Mod <<<
+Repo: https://github.com/mjonuschat/docker-mods-sma
+
+Version: $(cat /etc/version.sma)
+----------------
+EOF
+
+# Determine if setup is needed
+if [ ! -f /usr/bin/ffmpeg ]; then
+  echo "Running first time setup."
+
+  if [ -f /usr/bin/apt ]; then
+    # Ubuntu
+    echo "Installing ffmpeg using apt-get"
+    apt-get update
+    apt-get -y install ffmpeg
+    echo "Installing python3-setuptools using apt-get"
+    apt-get -y install python3-setuptools python3-pip
+    echo "Installing mediainfo using apt-get"
+    apt-get -y install mediainfo
+    rm -rf /var/lib/apt/lists/*
+  elif [ -f /sbin/apk ]; then
+    # Alpine
+    echo "Installing ffmpeg using apk"
+    apk add --no-cache ffmpeg
+    echo "Installing python3-setuptools using apk"
+    apk add --no-cache py3-setuptools py3-pip
+    echo "Installing mediainfo using apk"
+    apk add --no-cache mediainfo
+  else
+    # Unknown
+    echo "Unknown package manager.  Attempting to install MKVToolNix using apt-get"
+    echo "Installing ffmpeg using apt-get"
+    apt-get update
+    apt-get -y install ffmpeg
+    echo "Installing python3-setuptools using apt-get"
+    apt-get -y install python3-setuptools python3-pip
+    echo "Installing mediainfo using apt-get"
+    apt-get -y install mediainfo
+    rm -rf /var/lib/apt/lists/*
+  fi
+
+  echo "Installing SMA dependencies using pip"
+  pip install --no-cache-dir --disable-pip-version-check -r /usr/local/share/scripts/sma/setup/requirements.txt
+fi
+
+# Change ownership
+if [ $(stat -c '%G' /usr/local/share/scripts/sma/manual.py) != "abc" ]; then
+  echo "Changing ownership on scripts."
+  chown -R abc:abc /usr/local/share/scripts/sma
+fi
