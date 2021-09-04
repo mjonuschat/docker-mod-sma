@@ -45,7 +45,11 @@ if [ ! -f /usr/bin/ffmpeg ]; then
   fi
 
   echo "Installing SMA dependencies using pip"
-  pip install --no-cache-dir --disable-pip-version-check -r /usr/local/share/scripts/sma/setup/requirements.txt
+  if [ -f /usr/bin/pip3 ]; then
+    pip3 install --no-cache-dir --disable-pip-version-check -r /usr/local/share/scripts/sma/setup/requirements.txt
+  else
+    pip install --no-cache-dir --disable-pip-version-check -r /usr/local/share/scripts/sma/setup/requirements.txt
+  fi
 fi
 
 # Change ownership
